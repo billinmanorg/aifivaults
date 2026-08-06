@@ -459,6 +459,42 @@ td .org{font-size:12px;color:var(--muted)}
   .dv.mv{offset-distance:45%}.dv.mv2{offset-distance:80%}
   .perm{animation:none;opacity:1}
 }
+
+/* ---------- legal ---------- */
+.legal-body h3{margin:28px 0 10px;font-size:17px}
+.legal-body p{color:var(--fg-2);margin-bottom:6px}
+.legal-body a{color:var(--cyan)}
+.eff{font-size:12px;color:var(--muted);margin-top:8px}
+.warn{background:rgba(255,181,71,.09);border:1px solid rgba(255,181,71,.4);border-left-width:3px;border-radius:var(--r-s);padding:15px 18px;color:var(--fg-2);font-size:14.5px;line-height:1.6}
+.notice{margin-top:18px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r-s);background:rgba(255,255,255,.02)}
+.notice p{font-size:12.5px;line-height:1.6;color:var(--muted)}
+.notice-links{margin-top:8px}
+.notice-links a{color:var(--cyan)}
+.consent{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:13.5px;color:var(--fg-2);cursor:pointer}
+.consent input{margin-top:3px;flex:none}
+
+/* ---------- opportunity tools ---------- */
+.range{width:100%;accent-color:var(--cyan);margin-top:6px}
+.list.num{list-style:decimal;padding-left:20px}
+.list.num li{margin-bottom:6px}
+.k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:6px}
+.price{font-size:19px;color:var(--cyan);white-space:nowrap}
+
+.stream-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.stream{display:flex;flex-direction:column;gap:4px;padding:13px 14px;border-radius:10px;text-align:left;
+  border:1px solid var(--line-2);background:var(--panel-2);color:var(--fg-2);cursor:pointer;transition:border-color .15s,background .15s}
+.stream:hover{border-color:var(--blue)}
+.stream[aria-pressed=true]{border-color:var(--cyan);background:rgba(68,199,244,.1);color:var(--fg)}
+.stream .t{font-weight:600;font-size:14px;line-height:1.25}
+.stream .k{font-size:10px;letter-spacing:.1em;color:var(--muted);margin:0}
+.stream[aria-pressed=true] .k{color:var(--cyan)}
+
+.econ{display:flex;flex-wrap:wrap;gap:8px}
+.econ-node{padding:8px 13px;border-radius:100px;font-size:13px;border:1px solid rgba(68,199,244,.4);
+  background:rgba(68,199,244,.09);color:var(--fg-2);animation:pop .28s ease both;animation-delay:calc(var(--i)*.03s)}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.econ-node{animation:none}}
+@media(max-width:680px){.stream-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -750,7 +786,7 @@ function SiteFooter(){
     col('Vault Types', PUBLIC_VAULTS.map(v => ['/vault-types/' + v[0], v[1]])) +
 
     col('Company', [['/about','About ' + BRAND.brandName],['/about/dectec','Dectec Solutions'],['/contact','Contact Us'],['/sign-in','Sign In']]) +
-    col('Legal', [['/privacy','Privacy'],['/terms','Terms']]) +
+    col('Legal', [['/privacy','Privacy Policy'],['/terms','Terms of Use'],['/privacy-request','Privacy Request']]) +
     '</div><div class="foot-bottom">' +
     '<p>&copy; ' + new Date().getFullYear() + ' AiFi. Dectec Solutions — an AiFi company.</p><div class="spacer"></div>' +
     '<p style="max-width:62ch">Figures shown on this site are illustrative and are not forecasts or guarantees. Token structures and availability are subject to legal, technical, and jurisdictional review.</p>' +
@@ -763,6 +799,9 @@ const PublicShell = body =>
 const PORTAL_NAV = [
   ['Learn', [['/portal','Portal Home','home'],['/what-is-a-vault','Complete Vault Guide','vault'],
     ['/benefits','Benefits','shield'],['/vault-types','Vault Types','board']]],
+  ['Opportunity', [['/portal/opportunity','Opportunity Builder','spark'],
+    ['/portal/launch-options','Ways to Launch','board'],['/portal/revenue-explorer','Build Your Economy','coin'],
+    ['/portal/business-models','Ways to Pay','calc'],['/portal/cost-of-waiting','Cost of Waiting','globe']]],
   ['Explore', [['/portal/demos','Vault Demos','play'],['/portal/calculator','AiFi Vault Calculator','calc'],
     ['/tokenized-communities','Tokenization','coin'],['/vaults-that-talk','Vault-to-Vault','net'],
     ['/data-protection','Data Protection','lock'],['/culture-and-legacy','Culture and Legacy','book']]],
@@ -1264,7 +1303,8 @@ function chatCapture(){
       '<div class="field"><label for="ch-e">Email</label><input class="input" id="ch-e" type="email" autocomplete="email" placeholder="jordan@company.com" /></div>' +
     '</div><div id="ch-err"></div>' +
     '<button class="btn btn-primary" id="ch-go">Start asking</button>' +
-    '<p class="small muted" style="margin-top:12px">We use this to answer follow-up questions our team cannot answer here. Nothing else is required.</p>';
+    '<p class="small muted" style="margin-top:12px">We use this to answer follow-up questions our team cannot answer here. Nothing else is required.</p>' +
+    noticeAtCollection();
 }
 function chatUI(){
   return '<div class="chat-log" id="ch-log" role="log" aria-live="polite"></div>' +
@@ -2076,10 +2116,10 @@ function contactFormMarkup(idPrefix, submitLabel, defaultNext){
   return '<form id="' + idPrefix + '-form" novalidate>' +
     '<div class="grid g2" style="gap:0 16px">' +
       formField(idPrefix + '-name','Name','text',null,true,'Your name') +
-      formField(idPrefix + '-org','Organization','text',null,true,'Company, brand, or channel') +
+      formField(idPrefix + '-org','Organization (optional)','text',null,false,'Company, brand, or channel') +
       formField(idPrefix + '-email','Email','email',null,true,'you@company.com') +
       formField(idPrefix + '-phone','Phone','tel',null,false,'+1 555 000 0000') +
-      formField(idPrefix + '-vault','Vault type of interest','select',VAULT_INTEREST,true) +
+      formField(idPrefix + '-vault','Vault type of interest (optional)','select',VAULT_INTEREST,false) +
       formField(idPrefix + '-size','Community or customer size','number',null,false,'250000') +
     '</div>' +
     formField(idPrefix + '-build','What are you trying to build?','textarea',null,true,'Tell us about the community and what you want it to do') +
@@ -2087,8 +2127,9 @@ function contactFormMarkup(idPrefix, submitLabel, defaultNext){
     (p.scenario ? '<div class="card" style="padding:16px;margin-bottom:16px"><span class="tag cyan">Scenario attached</span>' +
       '<p class="small mt-s">' + esc(p.scenario) + '</p></div>' : '') +
     '<div class="err" id="' + idPrefix + '-err" role="alert" hidden></div>' +
-    '<button class="btn btn-primary" type="submit">' + submitLabel + '</button>' +
-    '<p class="small muted" style="margin-top:14px">Submitting this form creates a contact record for authorized AiFi administrators so they can respond.</p>' +
+    marketingConsent(idPrefix + '-mkt') +
+    '<button class="btn btn-primary" type="submit" style="margin-top:16px">' + submitLabel + '</button>' +
+    noticeAtCollection() +
   '</form>';
 }
 
@@ -2167,16 +2208,610 @@ afterRender['/contact'] = () => {
 /* ============================================================
    SIGN IN
    ============================================================ */
-/* §31 Legal pages referenced by the public footer. Placeholder
-   copy: replace with the reviewed text before launch. */
-['privacy','Privacy Policy'].length && route('/privacy','Privacy Policy','public', () =>
-  '<section class="section"><div class="shell-narrow"><h1>Privacy Policy</h1>' +
-  '<p class="lede mt">This page is awaiting reviewed legal copy. Until it is published, ' +
-  'privacy questions can be sent to <a href="#/contact">Contact Us</a>.</p></div></section>');
 route('/terms','Terms of Use','public', () =>
   '<section class="section"><div class="shell-narrow"><h1>Terms of Use</h1>' +
   '<p class="lede mt">This page is awaiting reviewed legal copy. Until it is published, ' +
   'questions can be sent to <a href="#/contact">Contact Us</a>.</p></div></section>');
+
+/* ============================================================
+   §17-§22  LEGAL LAYER
+   Entity details, effective dates, and policy bodies are all
+   administrator-configured. Pages refuse to publish until an
+   effective date is set, so an unreviewed policy cannot go live
+   by accident.
+   ============================================================ */
+const LEGAL = {
+  entity:'AI Financial Corporation',
+  address:['8548 Rozita Lee Avenue','Suite 305','Las Vegas, Nevada 89113','United States'],
+  legalContact:'', privacyContact:'',
+  termsEffective:'', privacyEffective:'',
+  governingLaw:'Nevada', venue:'Clark County, Nevada',
+  termsVersion:'1.0-draft', privacyVersion:'1.0-draft',
+  retention:{ events:'24 months', summaries:'36 months', security:'12 months' },
+  reviewed:false          /* set true only after counsel sign-off */
+};
+const legalReady = k => !!(LEGAL[k + 'Effective'] && LEGAL.reviewed);
+
+/* §18 Notice at collection. Rendered wherever personal data is
+   first collected, not buried in a policy nobody opens. */
+function noticeAtCollection(){
+  return '<div class="notice"><p>' + tx('{{brandName}}') + ' collects the information you submit and ' +
+    'information about how you use this website or portal to provide the service, respond to you, ' +
+    'improve the experience, and support relevant business follow-up. Authenticated portal activity ' +
+    'may be visible to authorized ' + tx('{{brandName}}') + ' sales, support, and administrative users. ' +
+    'Review the Privacy Policy for details and available rights.</p>' +
+    '<p class="notice-links"><a href="#/privacy">Privacy Policy</a> \u00b7 <a href="#/terms">Terms of Use</a></p></div>';
+}
+function marketingConsent(id){
+  return '<label class="consent"><input type="checkbox" id="' + id + '" /> ' +
+    '<span>Optional: send me occasional updates about ' + tx('{{productName}}') + '. ' +
+    'You can use the portal without this.</span></label>';
+}
+function legalHeader(kind){
+  const eff = LEGAL[kind + 'Effective'];
+  return (eff ? '<p class="eff mono">Effective date: ' + esc(eff) + ' \u00b7 Version ' + esc(LEGAL[kind + 'Version']) + '</p>'
+              : '<div class="warn"><strong>Draft \u2014 not yet in effect.</strong> This text is awaiting legal review ' +
+                'and an administrator-configured effective date. It does not currently govern use of this site.</div>');
+}
+function legalContactBlock(){
+  return '<h3>Contact</h3><p>' + esc(LEGAL.entity) + '<br />' +
+    LEGAL.address.map(esc).join('<br />') + '</p>';
+}
+
+/* ---- §19 TERMS OF USE (default draft, CMS-editable) ---- */
+const TERMS_BODY = [
+  ['Informational and Business-Evaluation Purpose',
+   'The public website and prospect portal are provided to explain {{productName}}, demonstrate possible use cases, support business evaluation, and facilitate discussions with {{brandName}}. Unless governed by a separate written agreement, the website and portal do not themselves create a customer, partnership, reseller, investment, fiduciary, or agency relationship.'],
+  ['Accounts and Authorized Access',
+   'Some materials require an invited account. You must provide accurate information, protect your credentials, and promptly notify {{brandName}} of suspected unauthorized access. You may not share an account with unauthorized persons, attempt to access another user\u2019s or organization\u2019s content, circumvent role, tenant, or security controls, scrape, copy, reverse engineer, or systematically extract portal content, introduce malware or interfere with the service, or use the service for unlawful, deceptive, or abusive purposes. {{brandName}} may suspend or terminate access when reasonably necessary to protect the platform, other users, or {{brandName}}\u2019s rights.'],
+  ['Confidential and Gated Materials',
+   'The password-protected portal may include nonpublic product, commercial, pricing, technical, strategic, or partner information. Unless material is expressly identified as public, you may use gated material only to evaluate or support your organization\u2019s relationship with {{brandName}}. You may not distribute it publicly or provide it to competitors without written permission. Separate confidentiality agreements control if they conflict with this section.'],
+  ['Interactive Tools and Illustrative Results',
+   'Calculators, revenue explorers, business-model comparisons, token tools, opportunity models, and simulations provide illustrative scenarios based on assumptions selected by the user or configured by {{brandName}}. Results are not financial forecasts, guarantees, appraisals, investment advice, legal advice, tax advice, accounting advice, or commitments to pricing or commercial terms. Actual results depend on implementation, participation, data availability, sponsor agreements, customer behavior, costs, regulations, technical requirements, and negotiated contracts.'],
+  ['Pricing and Business Models',
+   'Prices, per-record figures, revenue shares, sponsor contributions, token structures, and partnership examples displayed on the website or portal are illustrative unless included in a signed written agreement. {{brandName}} may change or withdraw illustrative pricing at any time. A binding commercial arrangement exists only when authorized parties execute a definitive written agreement.'],
+  ['Tokens and Digital Assets',
+   'Information concerning tokens or digital assets describes potential utility within a Vault ecosystem. Nothing on the website or portal is an offer to sell securities, a solicitation to purchase securities, investment advice, a promise of token appreciation, a promise of liquidity, or a commitment to issue or list a token. Token functionality is subject to legal, regulatory, technical, commercial, and jurisdictional review.'],
+  ['Artificial Intelligence',
+   'AI-generated answers, recommendations, summaries, and demonstrations may be incomplete or inaccurate. Users should independently review important information. Do not rely on an AI response as a substitute for professional, legal, financial, medical, security, or regulatory advice.'],
+  ['Intellectual Property',
+   'The website, portal, software, designs, graphics, text, media, trademarks, methods, calculators, models, and other materials are owned by {{brandName}} or its licensors and are protected by applicable intellectual-property laws. {{brandName}} grants authorized users a limited, revocable, nonexclusive, nontransferable right to use the service for permitted evaluation, customer, implementation, or support purposes. No other rights are granted.'],
+  ['User Submissions',
+   'You retain ownership of materials you submit. You grant {{brandName}} a limited right to host, process, reproduce, and use submitted materials as reasonably necessary to operate the service, respond to requests, provide support, generate requested scenarios, improve the relevant account experience, and meet legal and security obligations. Do not submit information you lack authority to provide.'],
+  ['Feedback',
+   'If you voluntarily provide product feedback, {{brandName}} may use it without restriction or compensation, provided {{brandName}} does not publicly identify you as the source without permission.'],
+  ['Third-Party Services',
+   'The service may link to or integrate with third-party media, data, hosting, payment, token, analytics, or AI providers. {{brandName}} is not responsible for third-party services outside its control. Separate third-party terms may apply.'],
+  ['Availability and Changes',
+   '{{brandName}} may update, suspend, replace, or discontinue features and materials. {{brandName}} does not guarantee uninterrupted, error-free, or permanently available service.'],
+  ['Disclaimer of Warranties',
+   'To the maximum extent permitted by law, the website and portal are provided as is and as available. {{brandName}} disclaims implied warranties, including merchantability, fitness for a particular purpose, noninfringement, and warranties arising from course of dealing or usage. This disclaimer does not limit warranties contained in a separate signed customer agreement.'],
+  ['Limitation of Liability',
+   'To the maximum extent permitted by law, {{brandName}} and its affiliates, officers, employees, contractors, and licensors will not be liable for indirect, incidental, special, consequential, exemplary, or punitive damages, lost profits, lost revenue, lost data, lost business opportunity, or business interruption arising from use of the website or portal. Where liability cannot be excluded, {{brandName}}\u2019s aggregate liability arising from free website or evaluation access will not exceed one hundred U.S. dollars. A separate signed customer agreement controls liability relating to paid services.'],
+  ['Indemnification',
+   'You agree to indemnify and defend {{brandName}} against third-party claims arising from your unlawful use of the service, violation of these Terms, infringement of another party\u2019s rights, or submission of information you were not authorized to provide.'],
+  ['Governing Law',
+   'These Terms are governed by Nevada law, without regard to conflict-of-law principles. Unless a separate written agreement requires another forum, disputes relating to these Terms will be brought in the state or federal courts located in Clark County, Nevada, and the parties consent to that jurisdiction.'],
+  ['Changes to These Terms',
+   '{{brandName}} may update these Terms. The revised page will display a new effective date. For material changes affecting authenticated users, {{brandName}} may provide notice through the portal or require renewed acceptance.']
+];
+
+route('/terms','Terms of Use','public', () =>
+  '<section class="hero"><div class="shell-narrow"><span class="eyebrow">Legal</span>' +
+  '<h1>Terms of Use</h1>' + legalHeader('terms') +
+  '<p class="lede mt">These Terms of Use govern access to and use of the ' + tx('{{productName}}') +
+  ' website, password-protected portal, interactive tools, resources, demonstrations, and related services ' +
+  'operated by ' + esc(LEGAL.entity) + '. By accessing or using the website or portal, you agree to these Terms. ' +
+  'If you use the services on behalf of an organization, you represent that you are authorized to accept these ' +
+  'Terms for that organization.</p>' +
+  '<div class="legal-body">' + TERMS_BODY.map((s, i) =>
+    '<h3>' + (i + 1) + '. ' + tx(s[0]) + '</h3><p>' + tx(s[1]) + '</p>').join('') +
+  legalContactBlock() +
+  '<p class="small muted">Use the <a href="#/contact">Contact Us</a> page for questions regarding these Terms.</p>' +
+  '</div></div></section>');
+
+/* ---- §20 PRIVACY POLICY (default draft, CMS-editable) ---- */
+const PRIVACY_BODY = [
+  ['Information We Collect',
+   'Information you provide may include name, email address, phone number, organization, professional role, account credentials, contact and demo requests, chatbot questions, messages and notes, calculator assumptions, tool inputs and saved results, documents or media you choose to submit, support requests, token or partnership inquiries, and communication preferences.<br /><br />' +
+   'For authenticated users we may collect login and logout events, session duration, pages viewed, active time on pages, scroll or completion progress, resources opened, videos started and completed, documents downloaded, interactive tools used, scenarios generated or saved, calls to action selected, and demo and contact requests. This information may be available to authorized {{brandName}} sales, support, administrative, and security personnel. Prospects and customers are not shown {{brandName}}\u2019s internal engagement history, lead scores, alerts, or sales recommendations. We do not use portal analytics to record passwords, perform keylogging, create screen recordings, or capture unrelated activity outside {{brandName}} properties.<br /><br />' +
+   'Device and technical information may include IP address, browser type, device type, operating system, language, referring page, approximate location derived from IP, cookie or session identifiers, and security and diagnostic logs.'],
+  ['Sources of Information',
+   'We collect information directly from you, automatically when you use the website or portal, from an organization that invites you, from an authorized {{brandName}} employee or representative, from service providers supporting the platform, and from partners when legally permitted and relevant to an authorized business relationship.'],
+  ['How We Use Information',
+   'We may use personal information to operate the website and portal, create and administer accounts, authenticate users, answer questions, provide requested demos and materials, generate interactive scenarios, personalize recommended content, understand prospect interests, support relevant sales follow-up, manage customer relationships, provide onboarding and support, improve content, tools, and user experience, protect security, prevent fraud and abuse, maintain records, enforce agreements, and comply with law.'],
+  ['Portal Analytics and Sales Follow-Up',
+   '{{brandName}} uses first-party portal analytics to understand which Vault materials, tools, and examples are most relevant to an authenticated user or organization. Authorized {{brandName}} personnel may use this information to prepare for follow-up conversations, recommend relevant materials, identify unanswered questions, understand business-model interest, prioritize requested support, and improve the portal. We do not use this portal tracking for third-party behavioral advertising.'],
+  ['AI and Chatbot Processing',
+   'Questions submitted to the chatbot may be processed by {{brandName}} or contracted AI-service providers to produce answers from approved product material. Chat transcripts may be retained and reviewed to answer questions, create follow-up tasks, improve approved knowledge, protect security, and improve support. Do not submit highly sensitive personal information through the chatbot.'],
+  ['How We Disclose Information',
+   'We may disclose information to {{brandName}} affiliates and authorized personnel; hosting, infrastructure, analytics, communications, security, CRM, support, and AI service providers; professional advisers; government authorities when legally required; parties involved in a merger, financing, acquisition, reorganization, or sale of assets; and other parties with your direction or consent. Service providers may use information only for contracted purposes and subject to appropriate obligations.'],
+  ['Sale and Advertising Sharing',
+   '{{brandName}} does not sell personal information for monetary consideration and does not share portal activity for cross-context behavioral advertising. If these practices change, {{brandName}} will update this Policy and provide legally required choices before applying the new practice.'],
+  ['Cookies and Similar Technologies',
+   'We may use essential cookies, authentication cookies, preference cookies, first-party analytics, and security technologies. Where required, nonessential technologies will be subject to a consent mechanism. Users may control cookies through browser settings, although disabling essential cookies may prevent portal access.'],
+  ['Data Retention',
+   '{{brandName}} retains information only as long as reasonably necessary for account administration, business follow-up, customer support, security, contractual requirements, legal compliance, and dispute resolution. Current configured defaults: raw engagement events up to RETENTION_EVENTS; aggregated engagement summaries up to RETENTION_SUMMARIES; security logs up to RETENTION_SECURITY unless needed for an investigation. CRM and customer records are retained during the relationship and for a reasonable period afterward, and legal and contractual records as required by law or agreement. {{brandName}} may retain deidentified or aggregated information that no longer reasonably identifies an individual.'],
+  ['Security',
+   '{{brandName}} uses reasonable administrative, organizational, technical, and physical safeguards designed to protect personal information. No system can guarantee absolute security. Users are responsible for safeguarding account credentials and promptly reporting suspected unauthorized access.'],
+  ['Your Privacy Choices and Rights',
+   'Depending on location and applicable law, individuals may have the right to request access, request correction, request deletion, request a portable copy, object to or restrict certain processing, opt out of certain sales or sharing, appeal a denied request, withdraw consent where processing depends on consent, and receive nondiscriminatory treatment for exercising a right. Submit requests through the <a href="#/privacy-request">Privacy Request</a> page. {{brandName}} may need to verify identity before completing a request. Authorized agents may submit requests where permitted by law, subject to verification.'],
+  ['California Residents',
+   'California residents may have rights under the California Consumer Privacy Act, including rights to know, access, correct, delete, and obtain information about certain disclosures, and to opt out of covered sales or sharing. {{brandName}} does not sell personal information or share it for cross-context behavioral advertising as those terms are used in California law. The categories collected are described in Section 1, the purposes in Section 3, and the disclosure categories in Section 6.'],
+  ['Nevada Residents',
+   'Nevada residents may submit a verified request concerning covered information through the Privacy Request page. {{brandName}} does not sell covered information as defined by applicable Nevada Internet privacy law.'],
+  ['International Users',
+   'Information may be processed in the United States and other locations where {{brandName}} or its service providers operate. Where required, {{brandName}} will use appropriate safeguards for international transfers.'],
+  ['Children',
+   'The website and portal are intended for business users and are not directed to children under 13. {{brandName}} does not knowingly collect personal information from children under 13 through the website or portal. Contact {{brandName}} if you believe a child submitted information.'],
+  ['Third-Party Links',
+   'Resources may link to third-party websites or media. Their privacy practices are governed by their own policies.'],
+  ['Changes to This Policy',
+   '{{brandName}} may update this Policy. The page will show the current effective date. Material changes may also be communicated through the portal or by email.']
+];
+
+route('/privacy','Privacy Policy','public', () =>
+  '<section class="hero"><div class="shell-narrow"><span class="eyebrow">Legal</span>' +
+  '<h1>Privacy Policy</h1>' + legalHeader('privacy') +
+  '<p class="lede mt">This Privacy Policy explains how ' + esc(LEGAL.entity) + ' collects, uses, discloses, ' +
+  'and protects personal information in connection with the ' + tx('{{productName}}') + ' public website, ' +
+  'password-protected portal, interactive tools, demonstrations, resources, chatbot, and related communications.</p>' +
+  '<div class="legal-body">' + PRIVACY_BODY.map((s, i) =>
+    '<h3>' + (i + 1) + '. ' + tx(s[0]) + '</h3><p>' + tx(s[1])
+      .replace('RETENTION_EVENTS', esc(LEGAL.retention.events))
+      .replace('RETENTION_SUMMARIES', esc(LEGAL.retention.summaries))
+      .replace('RETENTION_SECURITY', esc(LEGAL.retention.security)) + '</p>').join('') +
+  legalContactBlock() +
+  '<p class="small muted">Submit privacy questions or rights requests through the ' +
+  '<a href="#/privacy-request">Privacy Request</a> page.</p>' +
+  '</div></div></section>');
+
+/* ---- §21 PRIVACY REQUEST ----
+   Requests are kept in a separate register, deliberately outside
+   the sales pipeline, and readable only by authorized users. */
+const PRIVACY_REQUESTS = [];
+const REQUEST_TYPES = ['Access','Correction','Deletion','Data copy','Opt out',
+  'Restrict processing','Appeal','Other privacy question'];
+
+route('/privacy-request','Privacy Request','public', () =>
+  '<section class="hero"><div class="shell-narrow"><span class="eyebrow">Legal</span>' +
+  '<h1>Submit a privacy request</h1>' +
+  '<p class="lede mt">Use this form to exercise a privacy right. Requests are handled by the ' +
+  tx('{{brandName}}') + ' privacy team and are not added to sales follow-up.</p>' +
+  '<div class="card mt" id="pr-card">' +
+    '<div class="grid g2" style="gap:14px">' +
+      '<div class="field"><label for="pr-n">Name</label><input class="input" id="pr-n" autocomplete="name" /></div>' +
+      '<div class="field"><label for="pr-e">Email</label><input class="input" id="pr-e" type="email" autocomplete="email" /></div>' +
+    '</div>' +
+    '<div class="grid g2" style="gap:14px">' +
+      '<div class="field"><label for="pr-loc">State or country</label><input class="input" id="pr-loc" /></div>' +
+      '<div class="field"><label for="pr-t">Request type</label><select class="input" id="pr-t">' +
+        REQUEST_TYPES.map(r => '<option>' + esc(r) + '</option>').join('') + '</select></div>' +
+    '</div>' +
+    '<div class="field"><label for="pr-d">Description</label><textarea class="input" id="pr-d" rows="3"></textarea></div>' +
+    '<label class="consent"><input type="checkbox" id="pr-agent" /> <span>I am submitting this request as an authorized agent on behalf of another person.</span></label>' +
+    '<label class="consent"><input type="checkbox" id="pr-verify" /> <span>I understand ' + tx('{{brandName}}') +
+      ' may need to verify my identity before completing this request.</span></label>' +
+    '<div id="pr-err"></div>' +
+    '<button class="btn btn-primary" id="pr-go">Submit request</button>' +
+    noticeAtCollection() +
+  '</div></div></section>');
+
+afterRender['/privacy-request'] = function(){
+  const go = document.getElementById('pr-go'); if (!go) return;
+  go.addEventListener('click', () => {
+    const n = $('#pr-n').value.trim(), em = $('#pr-e').value.trim(), err = $('#pr-err');
+    if (n.length < 2){ err.innerHTML = '<p class="err">Enter your name.</p>'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){ err.innerHTML = '<p class="err">Enter a valid email address.</p>'; return; }
+    if (!$('#pr-verify').checked){ err.innerHTML = '<p class="err">Please acknowledge the verification step.</p>'; return; }
+    const due = new Date(Date.now() + 45 * 864e5);
+    PRIVACY_REQUESTS.unshift({ id:'PR' + (PRIVACY_REQUESTS.length + 1), name:n, email:em,
+      location:$('#pr-loc').value.trim(), type:$('#pr-t').value, detail:$('#pr-d').value.trim(),
+      agent:$('#pr-agent').checked, received:new Date(), verified:false, owner:'Unassigned',
+      due:due, status:'Received', response:'' });
+    log('Privacy request received', $('#pr-t').value + ' \u2014 ' + em);
+    $('#pr-card').innerHTML = '<div class="ok"><strong>Request received.</strong><br />' +
+      'A confirmation was sent to ' + esc(em) + '. The privacy team will respond by ' +
+      esc(due.toLocaleDateString()) + '. This request was not added to sales follow-up.</div>';
+  });
+};
+
+/* §21 internal register — legal and admin only, never the sales pipeline */
+route('/admin/privacy-requests','Privacy Requests','settings', () => {
+  if (!PRIVACY_REQUESTS.length)
+    return '<section class="section"><div class="shell"><h1>Privacy requests</h1>' +
+      '<div class="empty mt"><p>No privacy requests have been received.</p></div></div></section>';
+  return '<section class="section"><div class="shell"><h1>Privacy requests</h1>' +
+    '<p class="lede">Handled separately from the sales pipeline. Statutory response windows apply.</p>' +
+    '<table class="table mt"><thead><tr><th>ID</th><th>Type</th><th>Requester</th><th>Received</th>' +
+    '<th>Due</th><th>Owner</th><th>Status</th></tr></thead><tbody>' +
+    PRIVACY_REQUESTS.map(r => '<tr><td class="mono">' + esc(r.id) + '</td><td>' + esc(r.type) + '</td>' +
+      '<td>' + esc(r.name) + '<br /><span class="small muted">' + esc(r.email) + '</span></td>' +
+      '<td>' + esc(r.received.toLocaleDateString()) + '</td><td>' + esc(r.due.toLocaleDateString()) + '</td>' +
+      '<td>' + esc(r.owner) + '</td><td><span class="pill">' + esc(r.status) + '</span></td></tr>').join('') +
+    '</tbody></table></div></section>';
+});
+
+/* §22 Versioned acceptance. Recorded at invitation acceptance and
+   re-requested when a material change lands. */
+const ACCEPTANCES = [];
+function recordAcceptance(user, marketing){
+  ACCEPTANCES.push({ user:user, termsVersion:LEGAL.termsVersion, privacyVersion:LEGAL.privacyVersion,
+    at:new Date(), ip:'recorded server-side in production', brandInstanceId:BRAND.slug,
+    marketing:!!marketing });
+  log('Legal acceptance recorded', user + ' \u00b7 terms ' + LEGAL.termsVersion + ' \u00b7 privacy ' + LEGAL.privacyVersion);
+}
+
+/* ============================================================
+   §6, §8, §9  PORTAL OPPORTUNITY TOOLS
+   Everything here is gated. Outputs are illustrative and driven
+   by assumptions the user selects, never by claims about what a
+   competitor is doing or what revenue is guaranteed.
+   ============================================================ */
+const ILLUSTRATIVE = 'Illustrative scenario based on assumptions you selected. Not a forecast, guarantee, or commitment to commercial terms.';
+function illus(){ return '<p class="disclaimer mt">' + ILLUSTRATIVE + '</p>'; }
+
+/* §6 nine ways a Vault can launch */
+const LAUNCH_OPTIONS = [
+  ['internal','Internal Private Community','Employees, members, customers with accounts, franchisees, advisors, students, association members',
+   ['Authenticated access','Organization-controlled invitations','Role-based permissions','Internal AI agents and knowledge','Private token utility where applicable'],
+   'Fast', 'Low'],
+  ['external','External Public Community','Followers, fans, consumers, prospects, event and media audiences',
+   ['No login for the initial public experience','Frictionless opt-in or Vault claim','Public content and demonstrations','Sponsor-supported activation','Public AI Twin experiences'],
+   'Fast', 'Medium'],
+  ['hybrid','Hybrid Public-to-Private','Creators, celebrities, brands, events, membership acquisition, customer onboarding',
+   ['Public discovery and AI interaction','Opt-in and Vault claim','Personalized services move behind authentication','Strong acquisition funnel'],
+   'Medium', 'Medium'],
+  ['embedded','Embedded Vault Experience','Existing website, customer portal, mobile app, loyalty or membership system, intranet',
+   ['Embedded components and branded widgets','Single sign-on','API integrations','Existing account mapping'],
+   'Medium', 'Higher'],
+  ['whitelabel','White-Labeled Standalone Vault','Owners who want their own branded destination',
+   ['Own domain, logo, colors, and copy','Configured resources, tools, and demos','Own contact routing and user roles'],
+   'Medium', 'Medium'],
+  ['bulk','Bulk Pre-Provisioned Vaults','Owners with existing authorized records',
+   ['Match or identify eligible records','Provision the Vault layer in advance','Invite and activate members','Members claim and permission their Vault'],
+   'Fast', 'Medium'],
+  ['api','API or Headless Infrastructure','Enterprises that want the capability without the standard interface',
+   ['APIs and webhooks','Headless account provisioning','Data ingestion and permission management','AI agent access and usage reporting'],
+   'Slower', 'Higher'],
+  ['sponsor','Sponsor-Funded Community Launch','Owners who prefer little or no upfront activation capital',
+   ['Sponsor funds record acquisition and provisioning','Sponsor funds activation and rewards','Owner contributes reduced or no capital','Sponsor rights defined by permission and contract'],
+   'Medium', 'Lowest'],
+  ['cohort','Phased or Cohort Launch','Owners who want to prove results before scaling',
+   ['Start with one segment, market, tier, or event','Review results','Scale into further cohorts'],
+   'Fast', 'Lowest']
+];
+
+/* §9 business models. Every figure is an editable illustrative
+   default, never a hardcoded commitment. */
+const BUSINESS_MODELS = [
+  { id:'A', name:'Direct Per-Record Vault Purchase', price:3, unit:'per record', share:0,
+    upfront:'Highest', ongoing:'Optional fees only', revShare:'None unless separately configured',
+    best:'Buyers who want simple pricing and want to retain most downstream revenue',
+    pros:['Simple to understand','Owner keeps downstream revenue','Volume discounts may apply'],
+    cons:['Highest upfront capital','Owner carries activation risk'] },
+  { id:'B', name:'Reduced Price plus Revenue Share', price:2, unit:'per record', share:15,
+    upfront:'Reduced', ongoing:'Agreed share of qualifying revenue', revShare:'Configurable percentage and categories',
+    best:'Owners who prefer lower upfront cost and shared upside',
+    pros:['Lower capital to launch','Shared incentive to grow the economy','Terms and categories configurable'],
+    cons:['Ongoing share of qualifying revenue','Requires clear category definitions'] },
+  { id:'C', name:'Strategic Community Partnership', price:null, unit:'custom', share:null,
+    upfront:'Negotiated', ongoing:'Negotiated', revShare:'Negotiated',
+    best:'Select communities where both parties invest',
+    pros:['Reduced or deferred price','Shared activation and sponsor funding','Joint go-to-market'],
+    cons:['Requires internal approval','Not offered to every prospect'], gated:true },
+  { id:'D', name:'Sponsor-Funded Launch', price:null, unit:'sponsor funded', share:null,
+    upfront:'Little or none', ongoing:'Per agreement', revShare:'Per agreement',
+    best:'Communities attractive to a sponsor',
+    pros:['Owner may contribute little or no activation capital','Sponsor funds rewards and benefits'],
+    cons:['Requires a sponsor agreement','Sponsor rights limited to permission and contract'] },
+  { id:'E', name:'Subscription or Managed Service', price:null, unit:'monthly', share:null,
+    upfront:'Low', ongoing:'Platform, active-Vault, and service fees', revShare:'Optional',
+    best:'Owners who want AiFi to operate the platform',
+    pros:['Predictable operating model','Managed support and hosting'],
+    cons:['Ongoing fees','Usage-based AI cost varies'] },
+  { id:'F', name:'Enterprise Volume Agreement', price:null, unit:'tiered', share:null,
+    upfront:'Committed', ongoing:'Annual platform fee', revShare:'Optional',
+    best:'Large enterprises with multi-year commitments',
+    pros:['Reduced unit price at volume','Dedicated support and SLA'],
+    cons:['Annual minimum commitment','Longer procurement cycle'] },
+  { id:'G', name:'Member-Paid Vault', price:null, unit:'member paid', share:null,
+    upfront:'Low', ongoing:'Shared member revenue', revShare:'Shared with the owner',
+    best:'Communities whose members will pay for premium capability',
+    pros:['Free base Vault lowers the barrier','Premium upgrades fund the economy'],
+    cons:['Depends on member willingness to pay','Requires compelling premium tier'] },
+  { id:'H', name:'Hybrid Commercial Model', price:null, unit:'combination', share:null,
+    upfront:'Varies', ongoing:'Varies', revShare:'Varies',
+    best:'Owners whose situation does not fit a single structure',
+    pros:['Any approved combination of the above','Fits complex situations'],
+    cons:['More negotiation','Requires clear documentation'] }
+];
+
+/* §8.2 revenue streams */
+const STREAMS = [
+  ['vaultsales','Vault sales','One-time','Owner','Vault provisioning for a defined community'],
+  ['membership','Memberships','Recurring','Owner and community','Premium membership tiers and benefits'],
+  ['subscription','Subscriptions','Recurring','Owner','Ongoing access to content, services, or capability'],
+  ['twin','AI Twin access','Recurring','Owner and community','Authorized AI Twin interactions for members'],
+  ['agent','AI agent services','Per use','Owner','Agents performing authorized services'],
+  ['premium','Premium content','One-time','Owner','Exclusive content, training, and archives'],
+  ['experience','Exclusive experiences','One-time','Owner and community','Events, access, and interactions'],
+  ['sponsor','Sponsor funding','Recurring','Owner, community, sponsor','Sponsors fund activation, rewards, and benefits'],
+  ['offers','Permissioned offers','Per use','Community','Offers a member has authorized'],
+  ['tokenaccess','Tokenized access','Recurring','Community','Tokens carrying access and membership'],
+  ['rewards','Rewards and loyalty','Recurring','Community','Value returned for participation'],
+  ['marketplace','Marketplace participation','Per use','Owner and community','Buying and selling inside the economy'],
+  ['v2v','Vault-to-Vault services','Per use','Owner','Permissioned exchange between Vaults'],
+  ['agentbiz','AI agents doing business','Per use','Owner and community','Agents transacting within owner-set limits'],
+  ['licensing','Enterprise licensing','Recurring','Owner','Licensed capability for enterprise use'],
+  ['intelligence','Intelligence services','Recurring','Owner','Permitted, permissioned insight products']
+];
+
+/* ---------- §5 Vault Launch Opportunity Builder ---------- */
+const OPP = { community:'', size:100000, scope:'External', goal:'', streams:['membership','twin','sponsor'],
+              tokens:'Maybe', funding:'Reduced upfront' };
+
+route('/portal/opportunity','Vault Launch Opportunity Builder','auth', () =>
+  '<section class="section"><div class="shell">' +
+  '<span class="eyebrow">Opportunity builder</span>' +
+  '<h1>Find the best place to start</h1>' +
+  '<p class="lede">A few questions, then a recommended launch path, business model, and revenue mix. ' +
+  'There is no score and no pass mark \u2014 every community has a starting point.</p>' +
+  '<div class="grid g2 mt" style="gap:26px;align-items:start">' +
+    '<div class="card">' +
+      '<div class="field"><label for="op-c">Who is your community?</label>' +
+        '<select class="input" id="op-c">' + ['Followers or fans','Customers','Members or subscribers','Employees or internal teams','Event or media audience','Mixed'].map(o => '<option>' + o + '</option>').join('') + '</select></div>' +
+      '<div class="field"><label for="op-s">About how many people? <b id="op-sv" class="mono"></b></label>' +
+        '<input type="range" class="range" id="op-s" min="1000" max="5000000" step="1000" value="' + OPP.size + '" /></div>' +
+      '<div class="field"><label for="op-sc">Is it internal, external, or both?</label>' +
+        '<select class="input" id="op-sc"><option>External</option><option>Internal</option><option>Both</option></select></div>' +
+      '<div class="field"><label for="op-a">Do people already have accounts or logins?</label>' +
+        '<select class="input" id="op-a"><option>Yes, most do</option><option>Some do</option><option>No</option></select></div>' +
+      '<div class="field"><label for="op-g">What would you most like to accomplish?</label>' +
+        '<select class="input" id="op-g">' + ['Create new recurring revenue','Protect and organize customer data','Launch AI experiences for my community','Reward and retain members','Attract sponsor funding'].map(o => '<option>' + o + '</option>').join('') + '</select></div>' +
+      '<div class="field"><label for="op-t">Are tokens relevant?</label>' +
+        '<select class="input" id="op-t"><option>Maybe</option><option>Yes</option><option>Not now</option></select></div>' +
+      '<div class="field"><label for="op-f">How would you prefer to fund the launch?</label>' +
+        '<select class="input" id="op-f">' + ['Reduced upfront','Purchase outright','Sponsor funded','Explore a partnership'].map(o => '<option>' + o + '</option>').join('') + '</select></div>' +
+    '</div>' +
+    '<div id="op-out"></div>' +
+  '</div></div></section>');
+
+afterRender['/portal/opportunity'] = function(){
+  const ids = ['op-c','op-s','op-sc','op-a','op-g','op-t','op-f'];
+  const draw = () => {
+    const size = +$('#op-s').value, scope = $('#op-sc').value, accts = $('#op-a').value,
+          goal = $('#op-g').value, tok = $('#op-t').value, fund = $('#op-f').value;
+    $('#op-sv').textContent = size.toLocaleString();
+
+    /* Positive routing: every combination resolves to a start,
+       a fast path, and a high-opportunity path. */
+    let launch = scope === 'Internal' ? 'internal' : (accts === 'No' ? 'external' : 'hybrid');
+    if (fund === 'Sponsor funded') launch = 'sponsor';
+    if (accts === 'Yes, most do' && scope !== 'Internal') launch = 'bulk';
+    const cohort = size > 250000;
+    const model = fund === 'Purchase outright' ? 'A' : fund === 'Sponsor funded' ? 'D'
+                : fund === 'Explore a partnership' ? 'C' : 'B';
+    const m = BUSINESS_MODELS.find(x => x.id === model);
+    const lo = LAUNCH_OPTIONS.find(x => x[0] === launch);
+    const streams = { 'Create new recurring revenue':['membership','subscription','twin'],
+      'Protect and organize customer data':['vaultsales','offers','intelligence'],
+      'Launch AI experiences for my community':['twin','agent','premium'],
+      'Reward and retain members':['rewards','tokenaccess','experience'],
+      'Attract sponsor funding':['sponsor','offers','rewards'] }[goal];
+    if (tok === 'Yes') streams.push('tokenaccess');
+
+    const activation = 0.18, monthly = 1.10;   /* conservative illustrative defaults */
+    const active = Math.round(size * activation);
+    const low = Math.round(active * monthly * 12 * 0.6), high = Math.round(active * monthly * 12 * 1.6);
+
+    $('#op-out').innerHTML =
+      '<div class="card"><h3>Best place to start</h3>' +
+      '<p class="mt-s"><b>' + esc(lo[1]) + '</b></p><p class="small muted">' + esc(lo[2]) + '</p>' +
+      '<ul class="list check mt-s">' + lo[3].map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
+      (cohort ? '<p class="small muted mt-s">At this size, a phased or cohort launch usually proves results faster than launching to everyone at once.</p>' : '') +
+      '</div>' +
+      '<div class="card mt"><h3>Fastest launch path</h3>' +
+      '<p class="mt-s">' + esc(lo[1]) + ' \u00b7 time to launch: <b>' + esc(lo[4]) + '</b> \u00b7 upfront capital: <b>' + esc(lo[5]) + '</b></p></div>' +
+      '<div class="card mt"><h3>Suggested business model</h3>' +
+      '<p class="mt-s"><b>Model ' + esc(m.id) + ' \u2014 ' + esc(m.name) + '</b></p>' +
+      '<p class="small muted">' + esc(m.best) + '</p>' +
+      '<a class="btn btn-ghost btn-sm mt-s" href="#/portal/business-models">Compare all models</a></div>' +
+      '<div class="card mt"><h3>Highest-opportunity revenue mix</h3>' +
+      '<div class="row mt-s" style="gap:7px">' + streams.map(s => {
+        const st = STREAMS.find(x => x[0] === s);
+        return '<span class="tag">' + esc(st[1]) + '</span>'; }).join('') + '</div>' +
+      '<p class="mt-s">Illustrative annual range at ' + (activation * 100).toFixed(0) + '% activation and $' +
+        monthly.toFixed(2) + ' monthly value per active Vault: <b>$' + low.toLocaleString() +
+        '</b> to <b>$' + high.toLocaleString() + '</b></p>' +
+      '<p class="small muted mt-s">Both assumptions are yours to change in the ' +
+        '<a href="#/portal/calculator">Vault Calculator</a>.</p>' +
+      illus() + '</div>' +
+      '<div class="card mt"><h3>Information to refine during implementation</h3>' +
+      '<ul class="list"><li>Which records are already permissioned</li>' +
+      '<li>Which revenue categories a share would apply to</li>' +
+      '<li>Sponsor appetite in your category</li>' +
+      '<li>Jurisdictions in scope for any token utility</li></ul></div>' +
+      '<a class="btn btn-primary mt" href="#/request-demo">Request a custom model</a>';
+  };
+  ids.forEach(i => { const el = $('#' + i); if (el) el.addEventListener('input', draw); });
+  draw();
+};
+
+/* ---------- §6 Choose How Your Vault Launches ---------- */
+route('/portal/launch-options','Ways to Launch','auth', () =>
+  '<section class="section"><div class="shell">' +
+  '<span class="eyebrow">Ways to launch</span>' +
+  '<h1>Choose how your Vault launches</h1>' +
+  '<p class="lede">Nine ways to bring a community into a Vault economy. Most owners combine two.</p>' +
+  '<div class="grid g3 mt">' + LAUNCH_OPTIONS.map(o =>
+    '<div class="card"><h3>' + esc(o[1]) + '</h3>' +
+    '<p class="small muted mt-s">' + esc(o[2]) + '</p>' +
+    '<ul class="list check mt-s">' + o[3].map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
+    '<p class="small mono mt-s">Launch speed: ' + esc(o[4]) + ' \u00b7 Upfront: ' + esc(o[5]) + '</p></div>').join('') +
+  '</div>' +
+  '<div class="card mt"><h3>Not sure which fits?</h3>' +
+  '<p class="mt-s">The Opportunity Builder recommends a path from a few answers.</p>' +
+  '<a class="btn btn-primary btn-sm mt-s" href="#/portal/opportunity">Open the Opportunity Builder</a></div>' +
+  '</div></section>');
+
+/* ---------- §8.2 Revenue Stream Explorer ---------- */
+route('/portal/revenue-explorer','Build Your Vault Economy','auth', () =>
+  '<section class="section"><div class="shell">' +
+  '<span class="eyebrow">Revenue explorer</span>' +
+  '<h1>Build your Vault economy</h1>' +
+  '<p class="lede">Turn revenue streams on and watch the economy grow. Each one shows who pays, who receives value, and what it takes to run.</p>' +
+  '<div class="grid g2 mt" style="gap:26px;align-items:start">' +
+    '<div><div class="stream-grid">' + STREAMS.map(s =>
+      '<button class="stream" data-s="' + s[0] + '" aria-pressed="false">' +
+      '<span class="t">' + esc(s[1]) + '</span><span class="k mono">' + esc(s[2]) + '</span></button>').join('') +
+    '</div></div>' +
+    '<div id="rx-out"></div>' +
+  '</div></div></section>');
+
+afterRender['/portal/revenue-explorer'] = function(){
+  const on = new Set(['membership','twin','sponsor']);
+  const draw = () => {
+    $$('.stream').forEach(b => b.setAttribute('aria-pressed', String(on.has(b.dataset.s))));
+    const sel = STREAMS.filter(s => on.has(s[0]));
+    const by = k => sel.filter(s => s[2] === k);
+    const sequence = sel.slice().sort((a, b) =>
+      ({'One-time':0,'Recurring':1,'Per use':2})[a[2]] - ({'One-time':0,'Recurring':1,'Per use':2})[b[2]]);
+    $('#rx-out').innerHTML = !sel.length
+      ? '<div class="empty"><p>Select a revenue stream to begin building the economy.</p></div>'
+      : '<div class="card"><h3>Your economy</h3>' +
+        '<div class="econ mt-s">' + sel.map((s, i) =>
+          '<span class="econ-node" style="--i:' + i + '">' + esc(s[1]) + '</span>').join('') + '</div>' +
+        '<div class="grid g2 mt"><div><div class="k mono">Recurring</div><p>' +
+          (by('Recurring').length || 'None') + ' stream' + (by('Recurring').length === 1 ? '' : 's') + '</p></div>' +
+        '<div><div class="k mono">One-time</div><p>' + (by('One-time').length || 'None') + '</p></div>' +
+        '<div><div class="k mono">Per use</div><p>' + (by('Per use').length || 'None') + '</p></div>' +
+        '<div><div class="k mono">Sponsor supported</div><p>' + (on.has('sponsor') ? 'Yes' : 'No') + '</p></div></div>' +
+        '</div>' +
+        '<div class="card mt"><h3>What each stream involves</h3><table class="table mt-s"><thead><tr>' +
+        '<th>Stream</th><th>Type</th><th>Value goes to</th><th>What it takes</th></tr></thead><tbody>' +
+        sel.map(s => '<tr><td><b>' + esc(s[1]) + '</b></td><td class="mono small">' + esc(s[2]) + '</td>' +
+          '<td>' + esc(s[3]) + '</td><td class="small muted">' + esc(s[4]) + '</td></tr>').join('') +
+        '</tbody></table></div>' +
+        '<div class="card mt"><h3>Recommended launch sequence</h3><ol class="list num mt-s">' +
+        sequence.map(s => '<li>' + esc(s[1]) + '</li>').join('') + '</ol>' +
+        '<p class="small muted mt-s">One-time streams fund the launch, recurring streams sustain it, ' +
+        'per-use streams grow once the community is active.</p>' + illus() + '</div>' +
+        '<a class="btn btn-primary mt" href="#/request-demo">Request a custom model</a>';
+  };
+  $$('.stream').forEach(b => b.addEventListener('click', () => {
+    on.has(b.dataset.s) ? on.delete(b.dataset.s) : on.add(b.dataset.s); draw();
+  }));
+  draw();
+};
+
+/* ---------- §8.3 Business Model Comparator ---------- */
+route('/portal/business-models','Ways to Pay','auth', () => {
+  /* Model C is shown as available to explore, not offered outright. */
+  return '<section class="section"><div class="shell">' +
+  '<span class="eyebrow">Ways to pay</span>' +
+  '<h1>Compare business models</h1>' +
+  '<p class="lede">Several ways to structure a Vault program. Figures are illustrative defaults and are ' +
+  'confirmed only in a signed agreement.</p>' +
+  '<div class="grid g2 mt">' + BUSINESS_MODELS.map(m =>
+    '<div class="card"><div class="row" style="justify-content:space-between;align-items:baseline">' +
+    '<h3>Model ' + esc(m.id) + ' \u2014 ' + esc(m.name) + '</h3>' +
+    (m.price ? '<span class="price mono">$' + m.price + ' <span class="small">' + esc(m.unit) + '</span></span>'
+             : '<span class="price mono small">' + esc(m.unit) + '</span>') + '</div>' +
+    (m.share ? '<p class="small mono muted">plus ' + m.share + '% of qualifying revenue</p>' : '') +
+    '<p class="small muted mt-s">' + esc(m.best) + '</p>' +
+    '<div class="grid g3 mt-s"><div><div class="k mono">Upfront</div><p class="small">' + esc(m.upfront) + '</p></div>' +
+    '<div><div class="k mono">Ongoing</div><p class="small">' + esc(m.ongoing) + '</p></div>' +
+    '<div><div class="k mono">Revenue share</div><p class="small">' + esc(m.revShare) + '</p></div></div>' +
+    '<div class="grid g2 mt-s"><div><div class="k mono">Advantages</div><ul class="list check small">' +
+      m.pros.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>' +
+    '<div><div class="k mono">Considerations</div><ul class="list small">' +
+      m.cons.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div></div>' +
+    (m.gated ? '<p class="small muted mt-s">For select communities, ' + tx('{{brandName}}') +
+      ' may explore a deeper strategic partnership.</p>' : '') +
+    '</div>').join('') +
+  '</div>' + illus() +
+  '<a class="btn btn-primary mt" href="#/request-demo">Request a custom model</a>' +
+  '</div></section>';
+});
+
+/* ---------- §8.5 Cost of Waiting Explorer ---------- */
+route('/portal/cost-of-waiting','Cost of Waiting','auth', () =>
+  '<section class="section"><div class="shell">' +
+  '<span class="eyebrow">Timing</span>' +
+  '<h1>What a delay costs</h1>' +
+  '<p class="lede">Every input below is yours to set. This models opportunity delayed, not guaranteed loss, ' +
+  'and makes no claim about what any competitor is doing.</p>' +
+  '<div class="grid g2 mt" style="gap:26px;align-items:start"><div class="card">' +
+    '<div class="field"><label for="cw-s">Community size <b id="cw-sv" class="mono"></b></label>' +
+      '<input type="range" class="range" id="cw-s" min="1000" max="5000000" step="1000" value="250000" /></div>' +
+    '<div class="field"><label for="cw-a">Expected activation <b id="cw-av" class="mono"></b></label>' +
+      '<input type="range" class="range" id="cw-a" min="1" max="60" value="18" /></div>' +
+    '<div class="field"><label for="cw-d">Delay <b id="cw-dv" class="mono"></b></label>' +
+      '<input type="range" class="range" id="cw-d" min="1" max="24" value="6" /></div>' +
+    '<div class="field"><label for="cw-v">Illustrative monthly value per active Vault <b id="cw-vv" class="mono"></b></label>' +
+      '<input type="range" class="range" id="cw-v" min="10" max="1000" step="10" value="110" /></div>' +
+    '<div class="field"><label for="cw-t">Share of AI interactions you assume may move to third parties <b id="cw-tv" class="mono"></b></label>' +
+      '<input type="range" class="range" id="cw-t" min="0" max="60" value="15" /></div>' +
+    '<p class="small muted">These are your assumptions, not ' + tx('{{brandName}}') + ' projections.</p>' +
+  '</div><div id="cw-out"></div></div></div></section>');
+
+afterRender['/portal/cost-of-waiting'] = function(){
+  const draw = () => {
+    const size = +$('#cw-s').value, act = +$('#cw-a').value, del = +$('#cw-d').value,
+          val = +$('#cw-v').value / 100, third = +$('#cw-t').value;
+    $('#cw-sv').textContent = size.toLocaleString();
+    $('#cw-av').textContent = act + '%';
+    $('#cw-dv').textContent = del + ' month' + (del === 1 ? '' : 's');
+    $('#cw-vv').textContent = '$' + val.toFixed(2);
+    $('#cw-tv').textContent = third + '%';
+    const active = Math.round(size * act / 100);
+    const delayed = Math.round(active * val * del);
+    const relationships = Math.round(active * third / 100);
+    $('#cw-out').innerHTML =
+      '<div class="card"><h3>Under your assumptions</h3>' +
+      '<div class="grid g2 mt-s">' +
+      '<div><div class="stat-v num">' + active.toLocaleString() + '</div><p class="small">Active Vaults delayed</p></div>' +
+      '<div><div class="stat-v num">$' + delayed.toLocaleString() + '</div><p class="small">Illustrative value not yet activated</p></div>' +
+      '<div><div class="stat-v num">' + relationships.toLocaleString() + '</div><p class="small">Relationships you assume may form elsewhere first</p></div>' +
+      '<div><div class="stat-v num">' + del + '</div><p class="small">Months before the economy begins</p></div>' +
+      '</div>' + illus() + '</div>' +
+      '<div class="card mt"><h3>Strategic considerations</h3><ul class="list">' +
+      '<li>Permissions are simpler to agree before members are asked by several parties at once.</li>' +
+      '<li>Data that stays fragmented takes longer to organize later.</li>' +
+      '<li>A launched cohort produces evidence that a plan does not.</li></ul>' +
+      '<a class="btn btn-primary btn-sm mt-s" href="#/portal/opportunity">Find the fastest starting point</a></div>';
+  };
+  ['cw-s','cw-a','cw-d','cw-v','cw-t'].forEach(i => { const e = $('#' + i); if (e) e.addEventListener('input', draw); });
+  draw();
+};
+
+/* ---------- §10 Admin pricing and business models ---------- */
+route('/admin/pricing','Vault Pricing and Business Models','settings', () =>
+  '<section class="section"><div class="shell"><h1>Vault pricing and business models</h1>' +
+  '<div class="warn mt"><strong>Do not enter real internal cost or margin figures in this build.</strong> ' +
+  'This application is a single HTML file delivered to the browser. Anything stored here is readable by ' +
+  'anyone who views the page source, including prospects and competitors. The fields below are structural, ' +
+  'and the values shown are placeholders. Internal cost basis and margin belong on a server before real ' +
+  'numbers are entered.</div>' +
+  '<h3 class="mt">Illustrative price templates</h3>' +
+  '<table class="table mt-s"><thead><tr><th>Model</th><th>Illustrative price</th><th>Revenue share</th>' +
+  '<th>Upfront</th><th>Status</th></tr></thead><tbody>' +
+  BUSINESS_MODELS.map(m => '<tr><td><b>' + esc(m.id) + '</b> \u2014 ' + esc(m.name) + '</td>' +
+    '<td class="mono">' + (m.price ? '$' + m.price + ' ' + esc(m.unit) : esc(m.unit)) + '</td>' +
+    '<td class="mono">' + (m.share ? m.share + '%' : '\u2014') + '</td><td>' + esc(m.upfront) + '</td>' +
+    '<td><span class="pill">Approved</span></td></tr>').join('') +
+  '</tbody></table>' +
+  '<h3 class="mt">Revenue split defaults</h3>' +
+  '<p class="small muted">Applied by the Vault Calculator. Editable per brand instance.</p>' +
+  '<table class="table mt-s"><thead><tr><th>Party</th><th>Share</th></tr></thead><tbody>' +
+  Object.keys(S.splits).map(k => '<tr><td>' + esc(k) + '</td><td class="mono">' + S.splits[k] + '%</td></tr>').join('') +
+  '</tbody></table>' +
+  '<h3 class="mt">Pricing governance</h3>' +
+  '<p class="small muted">Draft, Approved, Published, Retired \u00b7 effective and expiration dates \u00b7 ' +
+  'created by and approved by \u00b7 change history and version \u00b7 brand instance \u00b7 customer override \u00b7 currency. ' +
+  'Only approved pricing appears in prospect tools.</p>' +
+  '</div></section>');
 
 route('/sign-in','Sign In','public', () =>
   '<section class="hero"><div class="shell-narrow" style="max-width:460px">' +
